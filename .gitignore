@@ -2,6 +2,9 @@
 .env
 .env.example
 
+# Owner-private files — keep local only
+RECREATE_PROMPT.md
+
 # WhatsApp session credentials (equivalent to being logged in as the business number)
 auth/
 
