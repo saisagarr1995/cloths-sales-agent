@@ -4,6 +4,7 @@ const {
   default: makeWASocket,
   useMultiFileAuthState,
   fetchLatestBaileysVersion,
+  makeCacheableSignalKeyStore,
   DisconnectReason,
 } = require("@whiskeysockets/baileys");
 const pino = require("pino");
@@ -62,10 +63,35 @@ async function start() {
 
   const sock = makeWASocket({
     version,
-    auth: state,
+    auth: {
+      creds: state.creds,
+      // cacheable key store: required for reliable app-state sync
+      keys: makeCacheableSignalKeyStore(state.keys, logger),
+    },
     logger,
     markOnlineOnConnect: false,
+    // a sales bot does not need chat history; skipping the heavy history
+    // sync avoids the "couldn't finish syncing" stall on login
+    syncFullHistory: false,
+    shouldSyncHistoryMessage: () => false,
   });
+
+  // Exactly ONE restart may be scheduled per socket lifetime. Without this
+  // guard, multiple close events spawn parallel sockets that fight over the
+  // same session (stream conflict) and loop forever.
+  let restartScheduled = false;
+  const scheduleRestart = (ms) => {
+    if (restartScheduled) return;
+    restartScheduled = true;
+    sock.ev.removeAllListeners("messages.upsert");
+    sock.ev.removeAllListeners("connection.update");
+    setTimeout(() => {
+      start().catch((err) => {
+        console.error("Reconnect failed:", err.message);
+        process.exit(1);
+      });
+    }, ms);
+  };
 
   sock.ev.on("creds.update", saveCreds);
 
@@ -81,11 +107,17 @@ async function start() {
     if (connection === "close") {
       const code = lastDisconnect?.error?.output?.statusCode;
       if (code === DisconnectReason.loggedOut) {
-        console.error("❌ Logged out. Delete the ./auth folder and restart to scan a new QR.");
+        console.error("❌ Logged out by WhatsApp. Delete the ./auth folder and restart to scan a new QR.");
         process.exit(1);
       }
-      console.log("Connection closed — reconnecting…");
-      setTimeout(start, 3000);
+      if (code === DisconnectReason.restartRequired) {
+        // normal, happens once right after a successful QR scan
+        console.log("↻ Finishing login — reconnecting…");
+        scheduleRestart(500);
+      } else {
+        console.log(`Connection closed (code ${code ?? "unknown"}: ${lastDisconnect?.error?.message || "no reason"}) — reconnecting in 5s…`);
+        scheduleRestart(5000);
+      }
     }
   });
 
