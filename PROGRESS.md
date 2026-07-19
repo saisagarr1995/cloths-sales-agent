@@ -27,6 +27,10 @@
 15. ✅ Per user's ignore rules, `.env.example` is also excluded from the repo (untracked from git; kept locally). README now documents the full `.env` template inline so open-source users can still set up.
 16. ✅ Published to GitHub: public repo under the user's account (saisagarr1995), branch `main`.
 
+## 2026-07-19 — Session 1 (repo governance)
+
+17. ✅ Branching model set up: `release/1.0` cut from `main`. Workflow: `feature/CSA-XXXX` → PR → `release/1.0` → PR → `main`. Direct pushes to `main` and `release/*` are blocked for EVERYONE including the admin (GitHub rulesets: PR required, no force-push, no deletion, no bypass actors). GitHub Actions disabled; interactions limited to collaborators (renew every 6 months — GitHub max). Only the owner has write/merge rights.
+
 ## NEXT STEP
 
 Go live: user still needs to put the real `UPI_ID` in `.env` (currently placeholder `yourname@upi`), then `npm start`, scan the QR with the business WhatsApp, and send "Hi" from another phone. Recommended: rotate the Groq API key (it was briefly pasted into a shareable file/chat), and replace placeholder product images in `data/images/` with real photos.
