@@ -1,5 +1,6 @@
 # Secrets — NEVER commit. Real values live only in .env (use .env.example as template)
 .env
+.env.example
 
 # WhatsApp session credentials (equivalent to being logged in as the business number)
 auth/

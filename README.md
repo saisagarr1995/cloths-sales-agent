@@ -20,19 +20,33 @@ Only 5 npm packages. No Python, no frameworks.
 git clone <this repo>
 cd cloths-sales-agent
 npm install
-copy .env.example .env     # then edit .env (see below)
+# create a .env file (template below)
 npm run gen-images         # placeholder product images (replace with real photos later)
 npm test                   # 16 offline tests; +5 live AI tests once GROQ_API_KEY is set
 npm start                  # scan the QR with your business WhatsApp (Linked Devices)
 ```
 
-Fill `.env` with:
+Create a `.env` file in the project root with:
 
-- `GROQ_API_KEY` — free at [console.groq.com](https://console.groq.com) (no card needed)
-- `UPI_ID` / `UPI_PAYEE_NAME` — where customers pay
-- `OWNER_WHATSAPP_NUMBER` — gets order alerts; confirms payments by replying `confirm ORD001`
+```ini
+# Free key from https://console.groq.com -> API Keys (no card needed)
+GROQ_API_KEY=gsk_your_key_here
+GROQ_MODEL=llama-3.3-70b-versatile
 
-> ⚠️ **Never commit `.env`, `auth/` or `data/customers/`** — they hold your API key, your live WhatsApp session and customer data. All three are in `.gitignore`.
+BUSINESS_NAME=Your Shop Name
+# UPI ID that receives payments, e.g. 9876543210@okicici or name@ybl
+UPI_ID=yourname@upi
+# Name shown in the customer's UPI app while paying
+UPI_PAYEE_NAME=Your Shop Name
+FREE_DELIVERY_ABOVE=999
+DELIVERY_CHARGE=49
+
+# Number (country code + digits) that receives order alerts and
+# confirms payments by replying: confirm ORD001
+OWNER_WHATSAPP_NUMBER=919876543210
+```
+
+> ⚠️ **Never commit `.env`, `auth/` or `data/customers/`** — they hold your API key, your live WhatsApp session and customer data. All are in `.gitignore`.
 
 ## How it works
 
