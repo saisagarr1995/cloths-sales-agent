@@ -42,6 +42,8 @@
 
 22. ✅ CSA-0002: fixed reconnect loop + "Couldn't finish syncing". Root causes: (a) reconnect handler could schedule overlapping sockets that conflict over one session; (b) missing cacheable signal key store + heavy history sync stalled login. `src/index.js` now uses `makeCacheableSignalKeyStore`, disables history sync (`syncFullHistory:false`, `shouldSyncHistoryMessage:()=>false`), single-flight restart guard (old listeners removed before restart), logs disconnect codes, fast-restarts on 515 (normal post-QR), exits cleanly on 401 loggedOut. Tests 21/21 green.
 
+23. ✅ CSA-0003: "Hi from Phone B does nothing" — WhatsApp now uses hidden `@lid` chat addresses; replies rebuilt from the phone number went nowhere. Fix: reply to the exact incoming `remoteJid` (jidMap in `deliver`), take customer identity from `remoteJidAlt` when LID, unwrap ephemeral/view-once messages, ignore channels/broadcasts, log every incoming message (`📩 phone: text`). Also: `OWNER_WHATSAPP_NUMBER` accepts "+91 XXXXXXXXXX" or bare 10-digit (normalized to 91XXXXXXXXXX, validated at startup — invalid number now fails fast).
+
 ## NEXT STEP
 
 Go live: user still needs to put the real `UPI_ID` in `.env` (currently placeholder `yourname@upi`), then `npm start`, scan the QR with the business WhatsApp, and send "Hi" from another phone. Recommended: rotate the Groq API key (it was briefly pasted into a shareable file/chat), and replace placeholder product images in `data/images/` with real photos.

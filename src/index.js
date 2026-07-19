@@ -23,8 +23,19 @@ function phoneToJid(phone) {
   return `${String(phone).replace(/\D/g, "")}@s.whatsapp.net`;
 }
 
+// Disappearing-message and view-once chats wrap the real content
+function unwrapMessage(message) {
+  if (!message) return {};
+  return (
+    message.ephemeralMessage?.message ||
+    message.viewOnceMessage?.message ||
+    message.viewOnceMessageV2?.message ||
+    message
+  );
+}
+
 function extractText(msg) {
-  const m = msg.message || {};
+  const m = unwrapMessage(msg.message);
   return (
     m.conversation ||
     m.extendedTextMessage?.text ||
@@ -34,9 +45,12 @@ function extractText(msg) {
   );
 }
 
-async function deliver(sock, outbound) {
+// jidMap lets replies go back to the EXACT address a message arrived from.
+// WhatsApp now uses hidden "@lid" addresses for many chats — rebuilding the
+// address from the phone number would send those replies nowhere.
+async function deliver(sock, outbound, jidMap = {}) {
   for (const msg of outbound) {
-    const jid = phoneToJid(msg.to);
+    const jid = jidMap[String(msg.to)] || phoneToJid(msg.to);
     try {
       if (msg.imageBuffer) {
         await sock.sendMessage(jid, { image: msg.imageBuffer, caption: msg.caption || "" });
@@ -127,14 +141,25 @@ async function start() {
       try {
         if (!msg.message || msg.key.fromMe) continue;
         const jid = msg.key.remoteJid || "";
-        if (jid.endsWith("@g.us") || jid === "status@broadcast") continue; // ignore groups & statuses
+        if (jid.endsWith("@g.us") || jid.endsWith("@broadcast") || jid.endsWith("@newsletter") || jid === "status@broadcast")
+          continue; // ignore groups, statuses, channels
 
         const text = extractText(msg);
-        const hasImage = Boolean(msg.message.imageMessage);
+        const hasImage = Boolean(unwrapMessage(msg.message).imageMessage);
         if (!text && !hasImage) continue;
 
-        const outbound = await handleMessage({ from: jidToPhone(jid), text, hasImage });
-        await deliver(sock, outbound);
+        // Identity: prefer the real phone-number address. For "@lid" chats
+        // WhatsApp puts it in remoteJidAlt.
+        const pnJid = jid.endsWith("@s.whatsapp.net")
+          ? jid
+          : (msg.key.remoteJidAlt || "").endsWith("@s.whatsapp.net")
+            ? msg.key.remoteJidAlt
+            : jid;
+        const phone = jidToPhone(pnJid);
+        console.log(`📩 ${phone}: ${text ? text.slice(0, 60) : "[image]"}`);
+
+        const outbound = await handleMessage({ from: phone, text, hasImage });
+        await deliver(sock, outbound, { [phone]: jid });
       } catch (err) {
         console.error("message processing error:", err);
       }
