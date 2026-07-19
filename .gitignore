@@ -1,0 +1,13 @@
+# Secrets — NEVER commit. Real values live only in .env (use .env.example as template)
+.env
+
+# WhatsApp session credentials (equivalent to being logged in as the business number)
+auth/
+
+# Private customer & order data
+data/customers/
+data/orders.json
+
+# Dependencies & noise
+node_modules/
+*.log
