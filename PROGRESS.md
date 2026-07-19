@@ -44,6 +44,8 @@
 
 23. ✅ CSA-0003: "Hi from Phone B does nothing" — WhatsApp now uses hidden `@lid` chat addresses; replies rebuilt from the phone number went nowhere. Fix: reply to the exact incoming `remoteJid` (jidMap in `deliver`), take customer identity from `remoteJidAlt` when LID, unwrap ephemeral/view-once messages, ignore channels/broadcasts, log every incoming message (`📩 phone: text`). Also: `OWNER_WHATSAPP_NUMBER` accepts "+91 XXXXXXXXXX" or bare 10-digit (normalized to 91XXXXXXXXXX, validated at startup — invalid number now fails fast).
 
+24. ✅ CSA-0004: RECREATE_PROMPT.md is now owner-private. Purged from the ENTIRE git history (filter-branch rewrite of main + release/1.0, force-pushed during a user-approved temporary ruleset window; both rulesets re-enabled and verified by a rejected test push). File kept locally, added to .gitignore, removed from README's docs list. Note: unreachable old commits may linger in GitHub's internal cache briefly until their GC clears them.
+
 ## NEXT STEP
 
 Go live: user still needs to put the real `UPI_ID` in `.env` (currently placeholder `yourname@upi`), then `npm start`, scan the QR with the business WhatsApp, and send "Hi" from another phone. Recommended: rotate the Groq API key (it was briefly pasted into a shareable file/chat), and replace placeholder product images in `data/images/` with real photos.

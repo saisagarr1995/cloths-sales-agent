@@ -66,5 +66,4 @@ Baileys is an unofficial WhatsApp client. Keep the bot conversational (it alread
 
 - `PLAN.md` — the frozen build plan
 - `PROGRESS.md` — build log + next step
-- `RECREATE_PROMPT.md` — one prompt that rebuilds this whole project with Claude Code
 - `CLAUDE.md` + `.claude/skills/` — automation rules for AI-assisted maintenance
