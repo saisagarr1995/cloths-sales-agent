@@ -31,6 +31,13 @@
 
 17. ✅ Branching model set up: `release/1.0` cut from `main`. Workflow: `feature/CSA-XXXX` → PR → `release/1.0` → PR → `main`. Direct pushes to `main` and `release/*` are blocked for EVERYONE including the admin (GitHub rulesets: PR required, no force-push, no deletion, no bypass actors). GitHub Actions disabled; interactions limited to collaborators (renew every 6 months — GitHub max). Only the owner has write/merge rights.
 
+## 2026-07-20 — Session 2
+
+18. ✅ Fixed user's local PowerShell execution policy (RemoteSigned) so `npm` runs — machine setting, no repo change.
+19. ✅ WhatsApp "Can't link devices right now" during QR scan: root cause was outdated Baileys 6.7.23 (WhatsApp protocol drift). Upgraded `@whiskeysockets/baileys` → 7.0.0-rc13; verified all used exports (makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion, DisconnectReason) unchanged, no code edits needed. Deleted stale `auth/` from failed link attempts. Smoke test: bot boots and prints QR on v7.
+20. ✅ Shipped via governance flow: `feature/CSA-0001` → PR → `release/1.0` → PR → `main`.
+21. ℹ️ Deploy pipeline status: GitHub Actions re-enabled (locked to GitHub-owned actions, read-only token). Deploy workflow NOT yet created — blocked on user choosing a VPS (Vercel is incompatible: serverless, no persistent process/disk). User has added .env values as Actions repo secrets already.
+
 ## NEXT STEP
 
 Go live: user still needs to put the real `UPI_ID` in `.env` (currently placeholder `yourname@upi`), then `npm start`, scan the QR with the business WhatsApp, and send "Hi" from another phone. Recommended: rotate the Groq API key (it was briefly pasted into a shareable file/chat), and replace placeholder product images in `data/images/` with real photos.
