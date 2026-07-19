@@ -24,6 +24,9 @@
 13. ✅ **Full test run: 21/21 PASS** — all 16 deterministic + all 5 live Groq tests (Tamil discount objection in Tamil, 2 bestsellers with reasons, occasion match, preference memory, buying intent → cart action).
 14. ✅ Added `README.md` for the public repo; `git init` + initial commit (secrets verified excluded).
 
+15. ✅ Per user's ignore rules, `.env.example` is also excluded from the repo (untracked from git; kept locally). README now documents the full `.env` template inline so open-source users can still set up.
+16. ✅ Published to GitHub: public repo under the user's account (saisagarr1995), branch `main`.
+
 ## NEXT STEP
 
-Go live: user still needs to put the real `UPI_ID` in `.env` (currently placeholder `yourname@upi`), then `npm start`, scan the QR with the business WhatsApp, and send "Hi" from another phone. Recommended: rotate the Groq API key (it briefly sat in `.env.example`). Then push the repo to GitHub.
+Go live: user still needs to put the real `UPI_ID` in `.env` (currently placeholder `yourname@upi`), then `npm start`, scan the QR with the business WhatsApp, and send "Hi" from another phone. Recommended: rotate the Groq API key (it was briefly pasted into a shareable file/chat), and replace placeholder product images in `data/images/` with real photos.
