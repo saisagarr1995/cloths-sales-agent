@@ -4,6 +4,19 @@ require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 
 const ROOT = path.join(__dirname, "..");
 
+// Accepted input formats for Indian numbers: "+91 XXXXXXXXXX" (with or
+// without spaces) or a bare 10-digit mobile number. Output is always the
+// WhatsApp form: 91XXXXXXXXXX.
+function normalizeIndianNumber(raw) {
+  const digits = String(raw || "").replace(/\D/g, ""); // "+91 89397..." -> "9189397..."
+  if (digits.length === 10) return `91${digits}`;      // bare 10-digit mobile
+  return digits;                                        // "+91"-prefixed already carries 91
+}
+
+function isValidIndianWhatsAppNumber(num) {
+  return /^91[6-9]\d{9}$/.test(num); // Indian mobiles start 6-9, 10 digits after 91
+}
+
 const config = {
   root: ROOT,
   dataDir: path.join(ROOT, "data"),
@@ -22,7 +35,7 @@ const config = {
   freeDeliveryAbove: Number(process.env.FREE_DELIVERY_ABOVE || 999),
   deliveryCharge: Number(process.env.DELIVERY_CHARGE || 49),
 
-  ownerNumber: (process.env.OWNER_WHATSAPP_NUMBER || "").replace(/\D/g, ""),
+  ownerNumber: normalizeIndianNumber(process.env.OWNER_WHATSAPP_NUMBER),
 };
 
 // Fails fast at startup so misconfiguration is obvious, but tests can
@@ -35,6 +48,11 @@ function validateForLive() {
   if (missing.length) {
     throw new Error(
       `Missing required .env values: ${missing.join(", ")}. Copy .env.example to .env and fill them in.`
+    );
+  }
+  if (!isValidIndianWhatsAppNumber(config.ownerNumber)) {
+    throw new Error(
+      `OWNER_WHATSAPP_NUMBER "${process.env.OWNER_WHATSAPP_NUMBER}" is not a valid Indian mobile. Use "+91 XXXXXXXXXX" or a bare 10-digit number.`
     );
   }
 }
